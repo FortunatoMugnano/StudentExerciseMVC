@@ -218,55 +218,42 @@ namespace StudentExerciseMVC.Controllers
 
             using (SqlConnection conn = Connection)
             {
+
                 conn.Open();
                 using (SqlCommand cmd = conn.CreateCommand())
                 {
-                    cmd.CommandText = @"
-                        SELECT i.Id, i.FirstName, i.LastName, i.SlackHandle, i.Speciality, i.CohortId as InstructorCohortId, c.Id as CohortId, c.Name
-                        FROM Instructor i
-                        LEFT JOIN Cohort c on c.id = i.CohortId
-                        WHERE i.Id = @id";
-                    cmd.Parameters.Add(new SqlParameter("@id", id));
-                    SqlDataReader reader = cmd.ExecuteReader();
+                    cmd.CommandText = @"SELECT Id, FirstName, LastName, SlackHandle, CohortId, Speciality
+                                        FROM Instructor
+                                        WHERE Id = @id";
 
-                    Instructor instructor = null;
+                    cmd.Parameters.Add(new SqlParameter("@id", id));
+
+                    var reader = cmd.ExecuteReader();
 
                     if (reader.Read())
                     {
-                       
-                        instructor = new Instructor
+                        var instructor = new Instructor
                         {
                             Id = reader.GetInt32(reader.GetOrdinal("Id")),
                             FirstName = reader.GetString(reader.GetOrdinal("FirstName")),
                             LastName = reader.GetString(reader.GetOrdinal("LastName")),
                             SlackHandle = reader.GetString(reader.GetOrdinal("SlackHandle")),
-                            Specialty = reader.GetString(reader.GetOrdinal("Speciality")),
-                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId"))
-                          
+                            CohortId = reader.GetInt32(reader.GetOrdinal("CohortId")),
+                            Specialty = reader.GetString(reader.GetOrdinal("Speciality"))
                         };
-
                         reader.Close();
 
                         var viewModel = new InstructorViewModel
                         {
-                            Instructor = new Instructor(),
+                            Instructor = instructor,
                             Cohorts = cohorts
                         };
-
                         return View(viewModel);
-
-                    };
-                    reader.Close();
-
-                    if (instructor == null)
-                    {
-                        return NotFound($"No Instructor found with the id of {id}");
                     }
-                    return View(instructor);
+                    reader.Close();
+                    return NotFound();
                 }
             }
-
-            
         }
 
         // POST: Instructors/Edit/5
