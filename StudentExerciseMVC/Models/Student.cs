@@ -31,5 +31,7 @@ namespace StudentExerciseMVC.Models
 
 
         public List<Exercise> Exercises { get; set; } = new List<Exercise>();
+
+        public List<int> ExerciseIds { get; set; }
     }
 }
